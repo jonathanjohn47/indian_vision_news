@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:sizer/sizer.dart';
 import 'package:indian_vision_news/core/app_colors.dart';
 import 'package:indian_vision_news/features/authentication/ui/sign_in_page.dart';
-import 'package:indian_vision_news/features/e_paper/ui/e_paper_page.dart';
 import 'package:indian_vision_news/features/home/ui/articles_tab.dart';
 import 'package:indian_vision_news/features/search/ui/search_page.dart';
 import 'package:indian_vision_news/models/category_model.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:sizer/sizer.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../contact/ui/contact_page.dart';
 import '../get_controllers/home_page_get_controller.dart';
@@ -111,7 +111,8 @@ class HomePage extends StatelessWidget {
                       child: SafeArea(
                           child: Padding(
                         padding: EdgeInsets.symmetric(horizontal: 12.0.w),
-                        child: Image.asset('assets/images/Picsart_22-09-12_23-22-16-855-e1663734817338.png'),
+                        child: Image.asset(
+                            'assets/images/Picsart_22-09-12_23-22-16-855-e1663734817338.png'),
                       )),
                     ),
                     Expanded(
@@ -176,10 +177,10 @@ class HomePage extends StatelessWidget {
                     )),
                 IconButton(
                     onPressed: () {
-                      Get.to(() => EPaperPage());
+                      launchUrl(Uri.parse('www.indianvisionnews.com'));
                     },
                     icon: const Icon(
-                      MdiIcons.newspaper,
+                      MdiIcons.share,
                       color: Colors.white,
                     )),
               ],
