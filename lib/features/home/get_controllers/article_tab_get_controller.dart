@@ -13,7 +13,7 @@ class ArticleTabGetController extends GetxController {
     var request = http.Request(
         'GET',
         Uri.parse(
-            'https://himalayanexpress.in/wp-json/mywebsite/v1/articles/'));
+            'https://indianvisionnews.com/wp-json/mywebsite/v1/articles/'));
 
     http.StreamedResponse response = await request.send();
 
@@ -25,7 +25,7 @@ class ArticleTabGetController extends GetxController {
           .map((e) => ArticlesFromRtdb.fromJson(jsonDecode(jsonEncode(e))))
           .toList();
       articlesList.removeWhere((article) => !article.category.any((category) =>
-          category.toLowerCase().trim() ==
+          category.name.toLowerCase().trim() ==
           categoryModel.name.toLowerCase().trim()));
     } else {
       print(response.reasonPhrase);

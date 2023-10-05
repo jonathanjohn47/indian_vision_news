@@ -18,7 +18,7 @@ class HomePageGetController extends GetxController
     var request = http.Request(
         'GET',
         Uri.parse(
-            'https://himalayanexpress.in/wp-json/mywebsite/v1/categories/'));
+            'https://indianvisionnews.com/wp-json/mywebsite/v1/categories/'));
 
     http.StreamedResponse response = await request.send();
 
@@ -31,6 +31,7 @@ class HomePageGetController extends GetxController
           .toList();
 
       categories.sort((a, b) => a.id.compareTo(b.id));
+      categories.removeWhere((element) => element.name == 'Uncategorized');
 
       tabController = TabController(length: categories.length, vsync: this);
     } else {
