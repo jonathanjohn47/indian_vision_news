@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:indian_vision_news/core/app_colors.dart';
 import 'package:indian_vision_news/helpers/date_time_helpers.dart';
-import 'package:indian_vision_news/models/article_model.dart';
+import 'package:indian_vision_news/models/articles_from_rtdb.dart';
 import 'package:indian_vision_news/models/category_model.dart';
 import 'package:sizer/sizer.dart';
 
@@ -21,11 +21,11 @@ class ArticlesTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: FutureBuilder<List<ArticleModel>>(
-            future: getController.loadArticleFromRtdb(categoryModel.name),
+        body: FutureBuilder<List<ArticlesFromRtdb>>(
+            future: getController.loadArticleFromRtdb(categoryModel),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
-                List<ArticleModel> allArticles = snapshot.data!;
+                List<ArticlesFromRtdb> allArticles = snapshot.data!;
 
                 return allArticles.length <= 5
                     ? ListView(
@@ -60,7 +60,7 @@ class ArticlesTab extends StatelessWidget {
                                             borderRadius:
                                                 BorderRadius.circular(4.sp),
                                             child: Image.network(
-                                              e.headlineImageUrl,
+                                              e.thumbnailImageUrl,
                                               fit: BoxFit.cover,
                                               width: 20.w,
                                               height: 20.w,
@@ -74,7 +74,7 @@ class ArticlesTab extends StatelessWidget {
                                     child: Row(
                                       children: [
                                         Text(
-                                          "Published: ${e.date.toDateWithShortMonthNameAndTime}",
+                                          "Published: ${DateTime.fromMillisecondsSinceEpoch(e.timestamp * 1000).toDateWithShortMonthName}",
                                           style: TextStyle(
                                               color: Colors.grey,
                                               fontStyle: FontStyle.italic,
@@ -90,14 +90,13 @@ class ArticlesTab extends StatelessWidget {
                                       children: [
                                         CircleAvatar(
                                           radius: 10.sp,
-                                          backgroundImage: NetworkImage(
-                                              e.publisher.profilePicLink),
+                                          child: Text(e.publisherName.name[0]),
                                         ),
                                         SizedBox(
                                           width: 2.w,
                                         ),
                                         Text(
-                                          e.publisher.name,
+                                          e.publisherName.name,
                                           style: TextStyle(
                                               color: Colors.grey,
                                               fontSize: 10.sp),
@@ -133,7 +132,7 @@ class ArticlesTab extends StatelessWidget {
                                     child: Stack(
                                       children: <Widget>[
                                         Image.network(
-                                          e.headlineImageUrl,
+                                          e.thumbnailImageUrl,
                                           fit: BoxFit.cover,
                                           width: 100.w,
                                         ),
@@ -172,8 +171,8 @@ class ArticlesTab extends StatelessWidget {
                                                           Shadow(
                                                             blurRadius: 3.0,
                                                             color: Colors.black,
-                                                            offset:
-                                                                Offset(2.0, 2.0),
+                                                            offset: Offset(
+                                                                2.0, 2.0),
                                                           ),
                                                         ],
                                                       ),
@@ -187,7 +186,7 @@ class ArticlesTab extends StatelessWidget {
                                                     height: 4.sp,
                                                   ),
                                                   Text(
-                                                    "Published: ${e.date.toDateWithShortMonthNameAndTime}",
+                                                    "Published: ${DateTime.fromMillisecondsSinceEpoch(e.timestamp * 1000).toDateWithShortMonthNameAndTime}",
                                                     style: TextStyle(
                                                         color: Colors.white
                                                             .withOpacity(0.8),
@@ -250,7 +249,7 @@ class ArticlesTab extends StatelessWidget {
                                                     BorderRadius.circular(4.sp),
                                                 child: Image.network(
                                                   allArticles[5]
-                                                      .headlineImageUrl,
+                                                      .thumbnailImageUrl,
                                                   fit: BoxFit.cover,
                                                   width: 100.w,
                                                   height: 25.h,
@@ -312,15 +311,19 @@ class ArticlesTab extends StatelessWidget {
                                                     width: 2.w,
                                                   ),
                                                   ClipRRect(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              4.sp),
-                                                      child: Image.network(
-                                                        e.headlineImageUrl,
-                                                        fit: BoxFit.cover,
-                                                        width: 20.w,
-                                                        height: 20.w,
-                                                      )),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            4.sp),
+                                                    child: e.thumbnailImageUrl
+                                                            .isNotEmpty
+                                                        ? Image.network(
+                                                            e.thumbnailImageUrl,
+                                                            fit: BoxFit.cover,
+                                                            width: 20.w,
+                                                            height: 20.w,
+                                                          )
+                                                        : Container(),
+                                                  ),
                                                 ],
                                               ),
                                             ),
@@ -330,7 +333,7 @@ class ArticlesTab extends StatelessWidget {
                                               child: Row(
                                                 children: [
                                                   Text(
-                                                    "Published: ${e.date.toDateWithShortMonthNameAndTime}",
+                                                    "Published: ${DateTime.fromMillisecondsSinceEpoch(e.timestamp * 1000).toDateWithShortMonthNameAndTime}",
                                                     style: TextStyle(
                                                         color: Colors.grey,
                                                         fontStyle:

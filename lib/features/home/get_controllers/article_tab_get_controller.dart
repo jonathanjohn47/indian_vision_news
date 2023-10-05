@@ -2,59 +2,35 @@ import 'dart:convert';
 
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:indian_vision_news/firebase_options.dart';
-
-import '../../../models/article_model.dart';
-import '../../../models/articles_from_rtdb.dart';
-import '../../../models/publisher_model.dart';
-import 'home_page_get_controller.dart';
+import 'package:indian_vision_news/models/articles_from_rtdb.dart';
+import 'package:indian_vision_news/models/category_model.dart';
 
 class ArticleTabGetController extends GetxController {
-  Future<List<ArticleModel>> loadArticleFromRtdb(String categoryName) async {
-    List<ArticleModel> articlesList = [];
-    String firebaseUrl = "${DefaultFirebaseOptions.android.databaseURL}";
+  Future<List<ArticlesFromRtdb>> loadArticleFromRtdb(
+      ArticleCategoryModel categoryModel) async {
+    List<ArticlesFromRtdb> articlesList = [];
 
-    final response = await http.get(Uri.parse("$firebaseUrl/Articles.json"));
+    var request = http.Request(
+        'GET',
+        Uri.parse(
+            'https://himalayanexpress.in/wp-json/mywebsite/v1/articles/'));
+
+    http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
-      Map<String, dynamic> articles = jsonDecode(response.body);
+      String responseBody = await response.stream.bytesToString();
+      List<dynamic> jsonList = json.decode(responseBody);
 
-      articles.forEach((key, value) {
-        ArticlesFromRtdb temp = ArticlesFromRtdb.fromJson(value);
-
-        if (temp.content.isNotEmpty) {
-          List<String> receivedCategories = temp.category;
-
-          HomePageGetController homePageGetController = Get.find();
-          bool containsCategory = receivedCategories.contains(categoryName);
-
-          if (containsCategory) {
-            articlesList.add(ArticleModel(
-              id: temp.url,
-              title: temp.title,
-              description: "",
-              htmlText: temp.content,
-              date: DateTime.fromMillisecondsSinceEpoch(temp.timestamp),
-              headlineImageUrl: temp.thumbnailImageUrl,
-              youtubeLink: "",
-              category: homePageGetController.categories[
-                  homePageGetController.categories.indexWhere((element) {
-                return element.name == categoryName;
-              })],
-              publisher: PublisherModel(
-                  name: temp.publisherName,
-                  email: "email",
-                  password: "password",
-                  profilePicLink: "",
-                  dateCreated: ""),
-            ));
-          }
-        }
-      });
+      articlesList = jsonList
+          .map((e) => ArticlesFromRtdb.fromJson(jsonDecode(jsonEncode(e))))
+          .toList();
+      articlesList.removeWhere((article) => !article.category.any((category) =>
+          category.toLowerCase().trim() ==
+          categoryModel.name.toLowerCase().trim()));
     } else {
-      throw Exception("Failed to load articles");
+      print(response.reasonPhrase);
     }
-    print("Length of articles list: ${articlesList.length}");
+
     return articlesList;
   }
 }

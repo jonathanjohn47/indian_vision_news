@@ -4,13 +4,12 @@ import 'package:flutter_share_me/flutter_share_me.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:indian_vision_news/core/app_colors.dart';
 import 'package:indian_vision_news/helpers/date_time_helpers.dart';
+import 'package:indian_vision_news/models/articles_from_rtdb.dart';
 import 'package:sizer/sizer.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
-import '../../../models/article_model.dart';
-
 class ArticleDetailsPage extends StatelessWidget {
-  final ArticleModel articleModel;
+  final ArticlesFromRtdb articleModel;
 
   ArticleDetailsPage({Key? key, required this.articleModel}) : super(key: key);
 
@@ -18,15 +17,6 @@ class ArticleDetailsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (articleModel.youtubeLink != null) {
-      youtubePlayerController = YoutubePlayerController(
-        initialVideoId: articleModel.youtubeLink!,
-        flags: const YoutubePlayerFlags(
-          autoPlay: true,
-          mute: false,
-        ),
-      );
-    }
     return Scaffold(
       appBar: PreferredSize(
           preferredSize: const Size.fromHeight(0), child: Container()),
@@ -38,13 +28,10 @@ class ArticleDetailsPage extends StatelessWidget {
             floating: true,
             automaticallyImplyLeading: false,
             expandedHeight: 30.h,
-            flexibleSpace: articleModel.headlineImageUrl.isEmpty
-                ? articleModel.youtubeLink != null
-                    ? YoutubePlayer(
-                        controller: youtubePlayerController,
-                      )
-                    : Image.asset('assets/images/Picsart_22-09-12_23-22-16-855-e1663734817338.png')
-                : Image.network(articleModel.headlineImageUrl),
+            flexibleSpace: articleModel.thumbnailImageUrl.isEmpty
+                ? Image.asset(
+                    'assets/images/Picsart_22-09-12_23-22-16-855-e1663734817338.png')
+                : Image.network(articleModel.thumbnailImageUrl),
           ),
           SliverToBoxAdapter(
             child: SizedBox(
@@ -70,7 +57,7 @@ class ArticleDetailsPage extends StatelessWidget {
                           width: 4.sp,
                         ),
                         Text(
-                          articleModel.publisher.name,
+                          articleModel.publisherName.name,
                           style: TextStyle(
                             fontSize: 10.sp,
                             fontStyle: FontStyle.italic,
@@ -91,7 +78,9 @@ class ArticleDetailsPage extends StatelessWidget {
                           width: 4.sp,
                         ),
                         Text(
-                          articleModel.date.toDateWithShortMonthNameAndTime,
+                          DateTime.fromMillisecondsSinceEpoch(
+                                  articleModel.timestamp * 1000)
+                              .toDateWithShortMonthNameAndTime,
                           style: TextStyle(
                             fontSize: 10.sp,
                             fontStyle: FontStyle.italic,
@@ -117,7 +106,7 @@ class ArticleDetailsPage extends StatelessWidget {
                   padding: EdgeInsets.symmetric(horizontal: 8.0.sp),
                   child: SingleChildScrollView(
                     child: Html(
-                      data: articleModel.htmlText,
+                      data: articleModel.content,
                     ),
                   ),
                 );
@@ -158,7 +147,7 @@ class ArticleDetailsPage extends StatelessWidget {
                 ],
               ),
               onPressed: () {
-                FlutterShareMe().shareToSystem(msg: articleModel.id);
+                FlutterShareMe().shareToSystem(msg: articleModel.url);
               },
             ),
           ),

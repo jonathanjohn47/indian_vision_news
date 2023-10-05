@@ -125,11 +125,6 @@ class HomePage extends StatelessWidget {
                             ListTile(
                               title: Text(
                                 element.name,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w500,
-                                    color: element.requiresRegistration
-                                        ? Colors.grey
-                                        : Colors.black),
                               ),
                               onTap: () {
                                 getController.selectedIndex.value =

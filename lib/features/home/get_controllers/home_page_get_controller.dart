@@ -1,9 +1,8 @@
 import 'dart:convert';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:indian_vision_news/core/app_constants.dart';
+import 'package:http/http.dart' as http;
 
 import '../../../models/category_model.dart';
 
@@ -16,20 +15,27 @@ class HomePageGetController extends GetxController
   late TabController tabController;
 
   void loadCategories() async {
-    FirebaseFirestore.instance
-        .collection(AppConstants.categories)
-        .snapshots()
-        .listen((value) {
-      categories.value = value.docs
-          .map((e) =>
-              ArticleCategoryModel.fromJson(jsonDecode(jsonEncode(e.data()))))
+    var request = http.Request(
+        'GET',
+        Uri.parse(
+            'https://himalayanexpress.in/wp-json/mywebsite/v1/categories/'));
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      String responseBody = await response.stream.bytesToString();
+      List<dynamic> jsonList = json.decode(responseBody);
+
+      categories.value = jsonList
+          .map((e) => ArticleCategoryModel.fromJson(jsonDecode(jsonEncode(e))))
           .toList();
-      categories.sort((a, b) => a.categoryNumber.compareTo(b.categoryNumber));
+
+      categories.sort((a, b) => a.id.compareTo(b.id));
+
       tabController = TabController(length: categories.length, vsync: this);
-      tabController.addListener(() {
-        selectedIndex.value = tabController.index;
-      });
-    });
+    } else {
+      print(response.reasonPhrase);
+    }
   }
 
   @override
@@ -38,7 +44,7 @@ class HomePageGetController extends GetxController
     super.onInit();
   }
 
-  Future<void> deleteDuplicateCategories() async {
+/*Future<void> deleteDuplicateCategories() async {
     await FirebaseFirestore.instance
         .collection(AppConstants.categories)
         .get()
@@ -72,9 +78,9 @@ class HomePageGetController extends GetxController
             .set(newCategory.toJson());
       }
     });
-  }
+  }*/
 
-  Future<void> saveCategory() async {
+/*Future<void> saveCategory() async {
     List<String> categoryNames = [];
 
     //$\begin{array}{llllll}\text { JAMMU } & \text { KASHMIR NATIONAL EDIT/OPINION EDUCATION ENTERTAINMENT HEALTHCARE WORLD BUSINESS SPORTS }\end{array}$
@@ -104,5 +110,5 @@ class HomePageGetController extends GetxController
           .doc((categories.length + 1).toString())
           .set(articleCategoryModel.toJson());
     }
-  }
+  }*/
 }
